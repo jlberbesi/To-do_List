@@ -1,39 +1,77 @@
 import './style.css';
+import { addTask, deleteTask, editTask } from './externalFunctions.js';
 
+const taskInput1 = document.getElementById('task-input-1');
+const taskInput2 = document.getElementById('task-input-2');
 const todoList = document.getElementById('todo-list');
+const clearCompletedButton = document.getElementById('clear-completed');
 
-class Task {
-  constructor(description, completed = false) {
-    this.description = description;
-    this.completed = completed;
-  }
+let tasks = [];
+
+function saveTasks() {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
 }
-
-const tasks = [
-  new Task('Wash the dishes'),
-  new Task('Do some exercise'),
-  new Task('Write a pull request'),
-];
 
 function renderTasks() {
   todoList.innerHTML = '';
 
   tasks.forEach((task) => {
     const taskItem = document.createElement('li');
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = task.completed;
-    checkbox.addEventListener('click', () => {
-      task.completed = checkbox.checked;
-      taskItem.classList.toggle('completed', task.completed);
-    });
-    const description = document.createElement('span');
-    description.textContent = task.description;
-    taskItem.appendChild(checkbox);
-    taskItem.appendChild(description);
-    taskItem.classList.toggle('completed', task.completed);
+    taskItem.innerHTML = `
+      <input type="checkbox" ${task.completed ? 'checked' : ''}>
+      <span>${task.description}</span>
+      <span class="delete-icon" style="font-family: arial; float: right; cursor:pointer;"><b>x</b></span>
+    `;
+    taskItem.className = task.completed ? 'completed' : '';
     todoList.appendChild(taskItem);
+
+    const span = taskItem.querySelector('span');
+    span.addEventListener('dblclick', () => {
+      editTask(task, span, renderTasks, saveTasks);
+    });
+
+    const checkbox = taskItem.querySelector('input[type="checkbox"]');
+    checkbox.addEventListener('click', () => {
+      task.completed = !task.completed;
+      taskItem.className = task.completed ? 'completed' : '';
+      saveTasks();
+    });
+
+    const deleteIcon = taskItem.querySelector('.delete-icon');
+    deleteIcon.addEventListener('click', () => {
+      deleteTask(task, tasks, renderTasks, saveTasks);
+    });
   });
 }
 
-renderTasks();
+if (localStorage.getItem('tasks')) {
+  tasks = JSON.parse(localStorage.getItem('tasks'));
+  renderTasks();
+}
+
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+    const taskDescription = event.target.value.trim();
+
+    if (taskDescription !== '' && taskDescription !== event.target.defaultValue) {
+      const newTask = {
+        description: taskDescription,
+        completed: false,
+        index: tasks.length + 1,
+      };
+      addTask(newTask, tasks, renderTasks, saveTasks);
+      event.target.value = '';
+    }
+  }
+}
+
+taskInput1.addEventListener('keydown', handleKeyPress);
+taskInput2.addEventListener('keydown', handleKeyPress);
+
+function clearCompleted() {
+  tasks = tasks.filter((task) => !task.completed);
+  renderTasks();
+  saveTasks();
+}
+
+clearCompletedButton.addEventListener('click', clearCompleted);
