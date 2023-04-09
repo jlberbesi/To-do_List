@@ -18,7 +18,7 @@ const tasks = [
 function renderTasks() {
   todoList.innerHTML = '';
 
-  tasks.forEach((task, index) => {
+  tasks.forEach((task) => {
     const taskItem = document.createElement('li');
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
