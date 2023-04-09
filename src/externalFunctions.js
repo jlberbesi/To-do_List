@@ -1,11 +1,11 @@
 const addTask = (newTask, tasks, renderTasks, saveTasks) => {
-  tasks = [...tasks, newTask];
+  tasks.push(newTask);
   renderTasks();
   saveTasks();
 };
 
 const deleteTask = (taskToDelete, tasks, renderTasks, saveTasks) => {
-  tasks = tasks.filter((task) => task !== taskToDelete);
+  tasks.splice(tasks.indexOf(taskToDelete), 1);
   renderTasks();
   saveTasks();
 };

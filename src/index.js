@@ -8,22 +8,21 @@ const clearCompletedButton = document.getElementById('clear-completed');
 
 let tasks = [];
 
-const saveTasks = () => {
+function saveTasks() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
-};
+}
 
-const renderTasks = () => {
+function renderTasks() {
   todoList.innerHTML = '';
 
   tasks.forEach((task) => {
-    const { completed, description } = task;
     const taskItem = document.createElement('li');
     taskItem.innerHTML = `
-      <input type="checkbox" ${completed ? 'checked' : ''}>
-      <span>${description}</span>
+      <input type="checkbox" ${task.completed ? 'checked' : ''}>
+      <span>${task.description}</span>
       <span class="delete-icon" style="font-family: arial; float: right; cursor:pointer;"><b>x</b></span>
     `;
-    taskItem.className = completed ? 'completed' : '';
+    taskItem.className = task.completed ? 'completed' : '';
     todoList.appendChild(taskItem);
 
     const span = taskItem.querySelector('span');
@@ -33,8 +32,8 @@ const renderTasks = () => {
 
     const checkbox = taskItem.querySelector('input[type="checkbox"]');
     checkbox.addEventListener('click', () => {
-      task.completed = !completed;
-      taskItem.className = completed ? 'completed' : '';
+      task.completed = !task.completed;
+      taskItem.className = task.completed ? 'completed' : '';
       saveTasks();
     });
 
@@ -43,14 +42,14 @@ const renderTasks = () => {
       deleteTask(task, tasks, renderTasks, saveTasks);
     });
   });
-};
+}
 
 if (localStorage.getItem('tasks')) {
   tasks = JSON.parse(localStorage.getItem('tasks'));
   renderTasks();
 }
 
-const handleKeyPress = (event) => {
+function handleKeyPress(event) {
   if (event.key === 'Enter') {
     const taskDescription = event.target.value.trim();
 
@@ -64,15 +63,15 @@ const handleKeyPress = (event) => {
       event.target.value = '';
     }
   }
-};
+}
 
 taskInput1.addEventListener('keydown', handleKeyPress);
 taskInput2.addEventListener('keydown', handleKeyPress);
 
-const clearCompleted = () => {
+function clearCompleted() {
   tasks = tasks.filter((task) => !task.completed);
   renderTasks();
   saveTasks();
-};
+}
 
 clearCompletedButton.addEventListener('click', clearCompleted);
